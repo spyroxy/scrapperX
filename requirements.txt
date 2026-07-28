@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+playwright
+openpyxl
+websockets
+jinja2
+python-multipart
+selenium
+webdriver-manager

@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ScraperX — Dynamic Web Scraper</title>
+    <link rel="stylesheet" href="styles.css?v=4">
+    <!-- Google Fonts Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+    <div id="app">
+        <!-- Login Screen -->
+        <section id="login-view" class="view active-view">
+            <div class="glass-card login-card animate-fade-in">
+                <div class="brand-logo">
+                    <i data-lucide="shield-alert" class="logo-icon"></i>
+                    <h1>ScraperX</h1>
+                </div>
+                <p class="subtitle">Dynamic Web Scraping Engine</p>
+                
+                <form id="login-form">
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <div class="input-with-icon">
+                            <i data-lucide="user"></i>
+                            <input type="text" id="username" value="admin" required placeholder="Enter username">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <div class="input-with-icon">
+                            <i data-lucide="lock"></i>
+                            <input type="password" id="password" value="password123" required placeholder="Enter password">
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary btn-block">
+                        <span>Sign In</span>
+                        <i data-lucide="arrow-right"></i>
+                    </button>
+                    <div id="login-error" class="error-msg hide">Invalid credentials. Hint: admin / password123</div>
+                </form>
+            </div>
+        </section>
+
+        <!-- Main Workspace (Navbar + Content Views) -->
+        <section id="workspace-view" class="view">
+            <nav class="navbar">
+                <div class="nav-brand">
+                    <i data-lucide="cpu" class="nav-logo-icon"></i>
+                    <h2>ScraperX</h2>
+                </div>
+                <div class="nav-actions">
+                    <span class="user-badge">
+                        <i data-lucide="user-check"></i>
+                        <span id="nav-username">Admin</span>
+                    </span>
+                    <button id="logout-btn" class="btn btn-secondary btn-icon-only" title="Logout">
+                        <i data-lucide="log-out"></i>
+                    </button>
+                </div>
+            </nav>
+
+            <div class="workspace-layout">
+                <!-- Sidebar -->
+                <aside class="sidebar">
+                    <div class="module-switcher" style="display: flex; gap: 4px; margin-bottom: 8px; background: rgba(255,255,255,0.03); padding: 4px; border-radius: 8px; border: 1px solid var(--border-color);">
+                        <button class="btn btn-sm btn-primary" id="tab-scraper-btn" style="flex: 1; font-size: 11px; padding: 6px;">ScraperX</button>
+                        <button class="btn btn-sm btn-secondary" id="tab-robot-btn" style="flex: 1; font-size: 11px; padding: 6px;">Selenium Robot</button>
+                    </div>
+
+                    <!-- Scraper Section -->
+                    <div id="side-scraper-panel">
+                        <button class="btn btn-primary sidebar-action" id="create-new-job-btn" style="width: 100%; margin-bottom: 16px;">
+                            <i data-lucide="plus"></i>
+                            <span>New Scrape Job</span>
+                        </button>
+                        
+                        <div class="sidebar-section">
+                            <h3>Scrape Jobs</h3>
+                            <div class="jobs-list" id="jobs-list-container">
+                                <div class="no-jobs-text">No scraping jobs yet. Create one!</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Robot Section -->
+                    <div id="side-robot-panel" class="hide">
+                        <button class="btn btn-primary sidebar-action" id="create-new-robot-btn" style="width: 100%; margin-bottom: 16px; background: var(--purple);">
+                            <i data-lucide="plus"></i>
+                            <span>New Selenium Robot</span>
+                        </button>
+                        
+                        <div class="sidebar-section">
+                            <h3>Selenium Robots</h3>
+                            <div class="jobs-list" id="robots-list-container">
+                                <div class="no-jobs-text">No robots configured yet.</div>
+                            </div>
+                        </div>
+                    </div>
+                </aside>
+
+                <!-- Main Content Area -->
+                <main class="content-area">
+                    
+                    <!-- Dashboard / Overview -->
+                    <div id="dashboard-subview" class="subview active-subview">
+                        <div class="welcome-banner">
+                            <h1>Welcome to ScraperX Dashboard</h1>
+                            <p>Configure dynamic CSS & XPath selectors, run asynchronous Playwright jobs, preview results, and stream high-quality Excel files without any database storage.</p>
+                        </div>
+                        
+                        <div class="stats-row">
+                            <div class="stat-card glass-card">
+                                <i data-lucide="layers" class="stat-icon purple"></i>
+                                <div class="stat-info">
+                                    <div class="stat-val" id="stat-total-jobs">0</div>
+                                    <div class="stat-label">Total Jobs</div>
+                                </div>
+                            </div>
+                            <div class="stat-card glass-card">
+                                <i data-lucide="activity" class="stat-icon green"></i>
+                                <div class="stat-info">
+                                    <div class="stat-val" id="stat-active-scrapes">0</div>
+                                    <div class="stat-label">Active Scrapes</div>
+                                </div>
+                            </div>
+                            <div class="stat-card glass-card">
+                                <i data-lucide="file-spreadsheet" class="stat-icon blue"></i>
+                                <div class="stat-info">
+                                    <div class="stat-val" id="stat-total-records">In-Memory</div>
+                                    <div class="stat-label">Data Storage</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="dashboard-actions-row">
+                            <button class="btn btn-secondary" id="import-config-btn">
+                                <i data-lucide="upload"></i>
+                                <span>Import Config JSON</span>
+                            </button>
+                            <input type="file" id="import-file-input" class="hide" accept=".json">
+                        </div>
+                    </div>
+
+                    <!-- Job Config / Builder -->
+                    <div id="job-builder-subview" class="subview">
+                        <div class="page-header">
+                            <div class="header-title-wrapper">
+                                <h1 id="builder-title">Create Scrape Job</h1>
+                                <p class="description">Define the target URL, selector details, and pagination rules.</p>
+                            </div>
+                            <div class="header-actions">
+                                <button class="btn btn-secondary" id="builder-back-btn">Cancel</button>
+                                <button class="btn btn-primary" id="save-job-btn">Save Job</button>
+                            </div>
+                        </div>
+
+                        <div class="builder-layout">
+                            <div class="builder-column">
+                                <!-- General settings -->
+                                <div class="glass-card section-card">
+                                    <h2><i data-lucide="settings"></i> General Information</h2>
+                                    <input type="hidden" id="builder-job-id">
+                                    
+                                    <div class="form-group">
+                                        <label for="job-name">Job Name *</label>
+                                        <input type="text" id="job-name" required placeholder="e.g., Books to Scrape Details">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="job-desc">Description</label>
+                                        <textarea id="job-desc" rows="3" placeholder="Describe the goal of this scraper..."></textarea>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="job-url">Target URL *</label>
+                                        <div class="url-input-wrapper">
+                                            <input type="url" id="job-url" required placeholder="https://books.toscrape.com/">
+                                            <span class="url-validation-badge" id="url-validation-status"><i data-lucide="circle-slash"></i></span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Scraping Configuration Settings -->
+                                <div class="glass-card section-card">
+                                    <h2><i data-lucide="sliders"></i> Scraping Parameters</h2>
+                                    
+                                    <div class="grid-2-col">
+                                        <div class="form-group">
+                                            <label for="job-delay">Delay Between Requests (ms)</label>
+                                            <input type="number" id="job-delay" value="1000" min="0">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="job-timeout">Timeout (ms)</label>
+                                            <input type="number" id="job-timeout" value="30000" min="1000">
+                                        </div>
+                                    </div>
+
+                                    <div class="grid-2-col">
+                                        <div class="form-group">
+                                            <label for="job-max-pages">Max Pages to Scrape</label>
+                                            <input type="number" id="job-max-pages" value="5" min="1">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="job-wait-condition">Wait Condition</label>
+                                            <select id="job-wait-condition">
+                                                <option value="domcontentloaded">DOM Content Loaded</option>
+                                                <option value="networkidle">Network Idle</option>
+                                                <option value="load">Fully Loaded (Load Event)</option>
+                                                <option value="selector_visible">First Selector Visible</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="job-user-agent">Custom User-Agent (Optional)</label>
+                                        <input type="text" id="job-user-agent" placeholder="Mozilla/5.0 ...">
+                                    </div>
+                                </div>
+
+                                <!-- Target Site Login (Optional) -->
+                                <div class="glass-card section-card">
+                                    <h2><i data-lucide="key-round"></i> Target Site Login (Optional)</h2>
+                                    
+                                    <div class="form-group">
+                                        <label for="job-login-url">Login Page URL</label>
+                                        <input type="url" id="job-login-url" placeholder="https://example.com/login">
+                                    </div>
+                                    
+                                    <div class="grid-2-col">
+                                        <div class="form-group">
+                                            <label for="job-login-user-selector">Username Selector</label>
+                                            <input type="text" id="job-login-user-selector" placeholder="input[name='email']">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="job-login-user-value">Username / Email</label>
+                                            <input type="text" id="job-login-user-value" placeholder="your-email@example.com">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="grid-2-col">
+                                        <div class="form-group">
+                                            <label for="job-login-pass-selector">Password Selector</label>
+                                            <input type="text" id="job-login-pass-selector" placeholder="input[name='password']">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="job-login-pass-value">Password</label>
+                                            <input type="password" id="job-login-pass-value" placeholder="••••••••">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="job-login-submit-selector">Submit Button Selector</label>
+                                        <input type="text" id="job-login-submit-selector" placeholder="button[type='submit']">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="builder-column">
+                                <!-- Fields configuration -->
+                                <div class="glass-card section-card">
+                                    <div class="section-title-row">
+                                        <h2><i data-lucide="table"></i> Fields to Extract</h2>
+                                        <button class="btn btn-secondary btn-sm" id="add-field-btn">
+                                            <i data-lucide="plus"></i> Add Field
+                                        </button>
+                                    </div>
+
+                                    <div class="fields-list" id="builder-fields-container">
+                                        <!-- Dynamically generated fields list -->
+                                    </div>
+                                </div>
+
+                                <!-- Pagination Settings -->
+                                <div class="glass-card section-card">
+                                    <h2><i data-lucide="arrow-right-circle"></i> Pagination Rules</h2>
+                                    
+                                    <div class="form-group">
+                                        <label for="job-pagination-type">Pagination Mode</label>
+                                        <select id="job-pagination-type">
+                                            <option value="none">Single Page Only</option>
+                                            <option value="next_button">Next Page Button Click</option>
+                                            <option value="url_pattern">URL Page-Number Pattern</option>
+                                            <option value="infinite_scroll">Infinite Page Scroll</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="form-group hide" id="pagination-next-btn-group">
+                                        <label for="job-next-selector">Next Button CSS/XPath Selector</label>
+                                        <input type="text" id="job-next-selector" placeholder="li.next > a or //li[@class='next']/a">
+                                    </div>
+
+                                    <div class="form-group hide" id="pagination-url-pattern-group">
+                                        <label for="job-url-pattern">URL Pattern (Use {page} placeholder)</label>
+                                        <input type="text" id="job-url-pattern" placeholder="https://books.toscrape.com/catalogue/page-{page}.html">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Scraping Monitor & Logs Console -->
+                    <div id="scrape-monitor-subview" class="subview">
+                        <div class="page-header">
+                            <div class="header-title-wrapper">
+                                <h1 id="monitor-job-name">Running Scrape Job</h1>
+                                <p class="description" id="monitor-job-desc">Job Status monitoring and real-time logs.</p>
+                            </div>
+                            <div class="header-actions">
+                                <button class="btn btn-secondary" id="monitor-back-btn">Back to Dashboard</button>
+                                <button class="btn btn-danger" id="stop-scrape-btn" disabled>Stop Scrape</button>
+                            </div>
+                        </div>
+
+                        <div class="monitor-grid">
+                            <!-- Left: Status and Logs -->
+                            <div class="monitor-left">
+                                <div class="glass-card status-card">
+                                    <div class="status-indicator-row">
+                                        <div class="status-badge" id="monitor-status-badge">
+                                            <span class="pulse-dot"></span>
+                                            <span id="monitor-status-text">Pending</span>
+                                        </div>
+                                        <div class="progress-container">
+                                            <div class="progress-bar" id="monitor-progress-bar" style="width: 0%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="console-card glass-card">
+                                    <div class="console-header">
+                                        <h3><i data-lucide="terminal"></i> Playwright Live Output Console</h3>
+                                    </div>
+                                    <div class="console-logs" id="console-logs-container">
+                                        <div class="console-line system-msg">Console ready. Awaiting connection...</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Right: Data Preview and download options -->
+                            <div class="monitor-right">
+                                <div class="glass-card preview-action-card">
+                                    <h2><i data-lucide="check-square"></i> Extraction Results</h2>
+                                    <p>Once the scrape completes, preview data and export to Excel.</p>
+                                    
+                                    <div class="scrape-results-summary">
+                                        <div class="summary-stat">
+                                            <span class="label">Total Rows Scraped</span>
+                                            <span class="val" id="monitor-scraped-rows">0</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="action-buttons-stack">
+                                        <button class="btn btn-primary btn-block" id="download-excel-btn" disabled>
+                                            <i data-lucide="download"></i>
+                                            <span>Download Excel (.xlsx)</span>
+                                        </button>
+                                        <button class="btn btn-secondary btn-block" id="show-preview-btn" disabled>
+                                            <i data-lucide="eye"></i>
+                                            <span>Show Data Preview</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Robot Script Builder/Editor -->
+                    <div id="robot-builder-subview" class="subview">
+                        <div class="page-header">
+                            <div class="header-title-wrapper">
+                                <h1 id="robot-builder-title">Create Selenium Robot</h1>
+                                <p class="description">Write custom python Selenium scripts to automate crawling tasks.</p>
+                            </div>
+                            <div class="header-actions">
+                                <button class="btn btn-secondary" id="robot-builder-back-btn">Cancel</button>
+                                <button class="btn btn-primary" id="save-robot-btn" style="background: var(--purple);">Save Robot</button>
+                            </div>
+                        </div>
+
+                        <div class="glass-card section-card">
+                            <h2><i data-lucide="settings"></i> General Information</h2>
+                            <input type="hidden" id="builder-robot-id">
+                            
+                            <div class="form-group">
+                                <label for="robot-name">Robot Name *</label>
+                                <input type="text" id="robot-name" required placeholder="e.g. Tokopedia Auto Login Crawler">
+                            </div>
+                            <div class="form-group">
+                                <label for="robot-desc">Description</label>
+                                <textarea id="robot-desc" rows="2" placeholder="Describe what this Selenium robot does..."></textarea>
+                            </div>
+                        </div>
+
+                        <div class="glass-card section-card">
+                            <h2><i data-lucide="code"></i> Selenium Python Code Editor</h2>
+                            <p class="description" style="font-size: 11px; color: var(--text-secondary); margin-top: -10px;">
+                                Write your robot script using Python and Selenium. The Chrome WebDriver will run headlessly.
+                            </p>
+                            <div class="form-group">
+                                <textarea id="robot-script-code" rows="18" style="font-family: var(--font-mono); font-size: 12px; background: #060913; border-color: rgba(255,255,255,0.1); color: #A9B2C3;" placeholder="# Write Python script here..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Robot Monitor Console -->
+                    <div id="robot-monitor-subview" class="subview">
+                        <div class="page-header">
+                            <div class="header-title-wrapper">
+                                <h1 id="monitor-robot-name">Running Selenium Robot</h1>
+                                <p class="description" id="monitor-robot-desc">Real-time script output and execution status.</p>
+                            </div>
+                            <div class="header-actions">
+                                <button class="btn btn-secondary" id="robot-monitor-back-btn">Back</button>
+                            </div>
+                        </div>
+
+                        <div class="monitor-grid" style="grid-template-columns: 3fr 1fr;">
+                            <div class="monitor-left">
+                                <div class="glass-card status-card">
+                                    <div class="status-indicator-row">
+                                        <div class="status-badge" id="robot-status-badge">
+                                            <span class="pulse-dot"></span>
+                                            <span id="robot-status-text">Pending</span>
+                                        </div>
+                                        <div class="progress-container">
+                                            <div class="progress-bar" id="robot-progress-bar" style="width: 0%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="console-card glass-card" style="height: 480px;">
+                                    <div class="console-header">
+                                        <h3><i data-lucide="terminal"></i> Selenium Output Stream</h3>
+                                    </div>
+                                    <div class="console-logs" id="robot-console-logs-container">
+                                        <div class="console-line system-msg">Console ready. Awaiting robot initialization...</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="monitor-right">
+                                <div class="glass-card preview-action-card">
+                                    <h2><i data-lucide="play-circle"></i> Robot Control</h2>
+                                    <p>Trigger or stop the Selenium background automation process.</p>
+                                    
+                                    <div class="action-buttons-stack" style="margin-top: 16px;">
+                                        <button class="btn btn-primary btn-block" id="run-robot-btn" style="background: var(--purple);">
+                                            <i data-lucide="play"></i>
+                                            <span>Run Robot</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Data Preview Modal/Sheet -->
+                    <div id="data-preview-subview" class="subview">
+                        <div class="page-header">
+                            <div class="header-title-wrapper">
+                                <h1>Scraped Data Preview</h1>
+                                <p class="description">Live preview table of the scraped records in memory.</p>
+                            </div>
+                            <div class="header-actions">
+                                <button class="btn btn-secondary" id="preview-close-btn">Close Preview</button>
+                                <button class="btn btn-primary" id="preview-download-excel-btn">
+                                    <i data-lucide="download"></i> Download Excel
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="glass-card table-card">
+                            <div class="table-container">
+                                <table id="preview-data-table">
+                                    <thead id="preview-table-head">
+                                        <!-- Column names dynamic -->
+                                    </thead>
+                                    <tbody id="preview-table-body">
+                                        <!-- Rows dynamic -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                </main>
+            </div>
+        </section>
+    </div>
+    <script src="app.js?v=4"></script>
+</body>
+</html>
